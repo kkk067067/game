@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ปริศนาวิหารข้อมูล</title>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#12162b;--panel:#1c2144;--panel2:#262c58;--line:#3a4278;--text:#eef0fa;--mute:#a4abd4;--gold:#e8b94a;--jade:#3fbf9f;--ruby:#e5596c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Sarabun',system-ui,sans-serif;font-size:17px;line-height:1.5;
+background-image:radial-gradient(circle at 50% -10%,#2f3a86 0,transparent 55%),radial-gradient(circle at 90% 100%,#1b4d57 0,transparent 40%)}
+h1,h2,h3{font-family:'Mitr','Sarabun',sans-serif;font-weight:500;margin:0}
+#app{height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:hidden}
+.screen{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.on{display:block}
+.pad{max-width:720px;margin:0 auto;padding:14px 16px 28px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px 16px}
+button{font:inherit;color:var(--text);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;appearance:none;-webkit-appearance:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 16px;font-family:'Mitr','Sarabun',sans-serif;font-size:20px;background:var(--gold);color:#2a1f00;box-shadow:0 5px 0 #a47d1d}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #a47d1d}
+.btn.alt{background:var(--panel2);color:var(--text);box-shadow:0 5px 0 #151a3a;border:2px solid var(--line)}
+.hero{text-align:center;padding:16px 4px 14px}
+.hero .sg{font-size:48px;line-height:1}
+.hero h1{font-size:clamp(30px,8vw,48px);color:var(--gold);margin:6px 0}
+.hero p{margin:0;color:var(--mute);font-size:15px}
+label{display:block;font-weight:700;margin:0 0 6px}
+input{width:100%;font:inherit;font-size:19px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:#12162b;color:var(--text);margin-bottom:14px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.mode{border:3px solid var(--line);background:var(--panel2);border-radius:14px;padding:10px 4px;font-family:'Mitr',sans-serif;font-size:20px}
+.mode[aria-pressed=true]{color:#10142a}
+.mode[data-m=easy][aria-pressed=true]{background:var(--jade);border-color:var(--jade)}
+.mode[data-m=mid][aria-pressed=true]{background:var(--gold);border-color:var(--gold)}
+.mode[data-m=hard][aria-pressed=true]{background:var(--ruby);border-color:var(--ruby)}
+#mdesc{margin:0 0 14px;color:var(--mute);font-size:15px;min-height:46px}
+.rules{margin:14px 0 0;padding:0;list-style:none;color:var(--mute);font-size:14px}
+.bar{display:flex;gap:6px;align-items:center;justify-content:space-between;font-family:'Mitr',sans-serif}
+.pill{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:2px 11px;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pill.gold{color:var(--gold)}
+button.pill{padding:2px 10px;font-size:17px}
+#play.on{display:flex;flex-direction:column;gap:8px;padding:8px 12px;overflow:hidden}
+#play .left{flex:none;display:flex;flex-direction:column;gap:8px}
+#play .card{flex:1;min-height:0;overflow-y:auto;padding:12px 14px}
+.track{position:relative;height:clamp(92px,19dvh,130px);border-radius:14px;overflow:hidden;border:2px solid var(--line);background:repeating-linear-gradient(90deg,#fff8 0 16px,transparent 16px 32px) 0 32%/100% 3px no-repeat,repeating-linear-gradient(90deg,#fff8 0 16px,transparent 16px 32px) 0 62%/100% 3px no-repeat,linear-gradient(#b4503f,#9c3f32)}
+.track::after{content:'';position:absolute;right:0;top:0;bottom:26px;width:calc(100%/11);background:repeating-conic-gradient(#fff 0 25%,#1b1b1b 0 50%) 0 0/14px 14px;opacity:.88}
+.track,.track *{pointer-events:none}
+.cells{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(11,1fr);background:#0d1024;z-index:3}
+.cell{height:26px;border-left:1px solid #fff3;display:flex;align-items:center;justify-content:center;font-family:'Mitr',sans-serif;font-size:clamp(10px,2.8vw,14px);color:var(--mute)}
+.cell.start{color:var(--jade);border-left:0}.cell.goal{color:var(--gold)}.cell.past{background:#2e3770;color:var(--text)}
+.pawn{position:absolute;bottom:30px;left:0;width:calc(100%/11);z-index:2;text-align:center;font-size:clamp(30px,8vw,46px);line-height:1;transition:transform .5s ease-in-out;filter:drop-shadow(0 5px 3px #0007)}
+#rn{display:inline-block;transform:scaleX(var(--f,-1))}
+#rn.run{animation:run .5s steps(5)}
+@keyframes run{0%,100%{transform:scaleX(var(--f,-1)) translateY(0) rotate(0)}25%{transform:scaleX(var(--f,-1)) translateY(-9px) rotate(-8deg)}50%{transform:scaleX(var(--f,-1)) translateY(0)}75%{transform:scaleX(var(--f,-1)) translateY(-9px) rotate(8deg)}}
+.q{margin-bottom:10px}
+.q .no{color:var(--gold);font-family:'Mitr',sans-serif;font-size:15px}
+.q .no.bn{color:#ffd86b}
+.q .tx{font-size:clamp(17px,4.4vw,20px);font-weight:600}
+.data{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.data span{background:#12162b;border:2px solid var(--line);border-radius:8px;padding:0 8px;font-family:'Mitr',sans-serif;font-size:15px}
+.gt{border-collapse:collapse;margin-top:8px;font-size:15px}
+.gt th,.gt td{border:2px solid var(--line);padding:2px 12px;text-align:center}
+.gt th{background:#12162b;color:var(--mute)}
+.note{color:var(--mute);font-size:13px;margin-top:4px;width:100%}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-size:19px;font-weight:600;box-shadow:0 4px 0 #151a3a}
+.opt i{flex:none;width:36px;height:36px;border-radius:50%;background:var(--gold);color:#2a1f00;display:flex;align-items:center;justify-content:center;font-style:normal;font-family:'Mitr',sans-serif}
+.opt:disabled{cursor:default}
+.opt.ok{background:#17503f;border-color:var(--jade)}.opt.no{background:#5a2330;border-color:var(--ruby)}.opt.dim{opacity:.55}
+.fb{margin-top:10px;border-radius:14px;padding:10px 13px;font-size:15px;display:none}
+.fb.ok{display:block;background:#12392f;border:2px solid var(--jade)}
+.fb.no{display:block;background:#44202a;border:2px solid var(--ruby)}
+.fb b{font-family:'Mitr',sans-serif;font-weight:500;font-size:17px}
+#next{margin-top:10px;display:none}
+.big{text-align:center}.big .em{font-size:54px;line-height:1}.big h2{font-size:28px;color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px}
+.stat{background:#12162b;border:2px solid var(--line);border-radius:14px;padding:8px;text-align:center}
+.stat small{display:block;color:var(--mute);font-size:13px}
+.stat b{font-family:'Mitr',sans-serif;font-weight:500;font-size:24px;color:var(--gold)}
+h3{font-size:19px;margin:0 0 6px}
+.lb{width:100%;border-collapse:collapse;font-size:16px;margin-bottom:16px}
+.lb th,.lb td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line)}
+.lb th{color:var(--mute)}.lb td:nth-child(n+3),.lb th:nth-child(n+3){text-align:right}
+.lb tr.me td{background:#2e3770;color:var(--gold);font-weight:700}
+.row{display:grid;gap:10px}
+@media(min-width:560px){.row{grid-template-columns:1fr 1fr}}
+@media(orientation:landscape) and (max-height:560px){
+ #play.on{flex-direction:row;gap:12px;padding:8px 12px}
+ #play .left{width:46%;justify-content:center;gap:12px}
+ .track{height:clamp(90px,34dvh,130px)}
+ #play .card{padding:10px 12px}
+ .q .tx{font-size:16px}.opt{padding:6px 10px;font-size:17px}.opt i{width:30px;height:30px}
+ .hero{padding:4px}.hero .sg{display:none}.hero h1{font-size:28px}
+ .stats{margin:8px 0}
+}
+@media(prefers-reduced-motion:reduce){.pawn{transition:none}#rn.run{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="menu" class="screen on"><div class="pad">
+  <div class="hero"><div class="sg">🗝️</div><h1>ปริศนาวิหารข้อมูล</h1>
+  <p>เกมคณิตศาสตร์ ม.6 การวัดตำแหน่งของข้อมูล Q<sub>r</sub>, D<sub>r</sub>, P<sub>r</sub></p></div>
+  <div class="card">
+    <label for="nm">ชื่อนักผจญภัย</label>
+    <input id="nm" maxlength="20" placeholder="พิมพ์ชื่อของคุณ" autocomplete="nickname">
+    <label>เลือกระดับความยาก</label>
+    <div class="modes">
+      <button class="mode" data-m="easy" aria-pressed="true">ง่าย</button>
+      <button class="mode" data-m="mid" aria-pressed="false">กลาง</button>
+      <button class="mode" data-m="hard" aria-pressed="false">ยาก</button>
+    </div>
+    <p id="mdesc"></p>
+    <button class="btn" id="start">เริ่มเกม</button>
+    <ul class="rules">
+      <li>ตอบถูกเดินหน้า 1 ช่อง ตอบผิดถอยหลัง 1 ช่อง (ไม่ต่ำกว่าช่อง 0)</li>
+      <li>ข้อ 5 และข้อ 10 เป็นข้อโบนัส ⭐ ข้อละ 20 คะแนน ข้ออื่นข้อละ 10 คะแนน</li>
+      <li id="pc"></li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="play" class="screen">
+  <div class="left">
+    <div class="bar">
+      <span class="pill" id="pname"></span>
+      <span class="pill gold" id="timer">00:00</span>
+      <span class="pill" id="pscore">0</span>
+      <button class="pill" id="fs" aria-label="เต็มจอ">⛶</button>
+    </div>
+    <div class="track"><div class="pawn" id="pawn"><span id="rn">🏃</span></div><div class="cells" id="cells"></div></div>
+  </div>
+  <div class="card">
+    <div class="q"><div class="no" id="qno"></div><div class="tx" id="qtx"></div><div class="data" id="qdata"></div></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb"></div>
+    <button class="btn" id="next">ข้อต่อไป</button>
+  </div>
+</section>
+
+<section id="result" class="screen"><div class="pad"><div class="card">
+  <div class="big"><div class="em" id="rem">🏆</div><h2 id="rtitle"></h2></div>
+  <div class="stats">
+    <div class="stat"><small>โหมด</small><b id="rmode"></b></div>
+    <div class="stat"><small>เวลา</small><b id="rtime"></b></div>
+    <div class="stat"><small>คะแนน</small><b id="rscore"></b></div>
+  </div>
+  <h3 id="lbh">ตารางอันดับ</h3>
+  <div style="overflow-x:auto"><table class="lb"><thead><tr><th>#</th><th>ชื่อ</th><th>คะแนน</th><th>เวลา</th></tr></thead><tbody id="lb"></tbody></table></div>
+  <div class="row"><button class="btn" id="again">เล่นอีกครั้ง</button><button class="btn alt" id="home">กลับหน้าเมนู</button></div>
+</div></div></section>
+
+</div>
+<script>
+/* ---------- คลังโจทย์ (สร้างด้วยโค้ด ผลเฉลยคำนวณอัตโนมัติ) ---------- */
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(20261115),ri=(a,b)=>a+Math.floor(R()*(b-a+1)),pk=a=>a[ri(0,a.length-1)];
+const DEN={Q:4,D:10,P:100},TT=['Q','D','P'];
+const sub=(t,r)=>`${t}<sub>${r}</sub>`,num=v=>String(Math.round(v*100)/100);
+const asc=a=>a.slice().sort((x,y)=>x-y),shuf=a=>a.slice().sort(()=>R()-.5);
+const dist=(n,lo,hi)=>{const s=new Set();while(s.size<n)s.add(ri(lo,hi));return[...s]};
+const rr=t=>t=='Q'?ri(1,3):t=='D'?ri(1,9):ri(5,95);
+const rI=t=>t=='Q'?ri(1,3):t=='D'?ri(1,9):pk([10,20,25,30,40,50,60,70,75,80,90]);
+const posOf=(t,r,n)=>r*(n+1)/DEN[t];
+const valAt=(x,p)=>{const n=x.length,i=Math.floor(p+1e-9),f=p-i;if(i<1)return x[0];if(i>=n)return x[n-1];return x[i-1]+f*(x[i]-x[i-1])};
+const ev=(t,r,n,x)=>{const p=posOf(t,r,n),i=Math.floor(p+1e-9),v=valAt(x,p);
+ return `ตำแหน่ง ${sub(t,r)} = ${r}(${n}+1)/${DEN[t]} = ${num(p)}`+(Math.abs(p-i)<1e-9?` คือข้อมูลตัวที่ ${i} = ${num(v)}`:` อยู่ระหว่างตัวที่ ${i} (${x[i-1]}) กับตัวที่ ${i+1} (${x[i]}) ค่า = ${x[i-1]} + ${num(p-i)}(${x[i]}−${x[i-1]}) = ${num(v)}`)};
+function mkN(o){const a=num(o.ans),s=new Set([a]),w=[];
+ for(const x of o.w){if(typeof x!='number'||isNaN(x))continue;const v=num(x);if(!s.has(v)){s.add(v);w.push(v)}}
+ for(let k=1;w.length<2&&k<20;k++){const v=num(o.ans+(k%2?1:-1)*Math.ceil(k/2)*(o.step||1));if(!s.has(v)){s.add(v);w.push(v)}}
+ return{...o,o:[a,w[0],w[1]],a:0}}
+function mkS(o){const s=new Set([o.ans]),w=[];for(const x of o.w)if(!s.has(x)){s.add(x);w.push(x)}
+ return w.length<2?null:{...o,o:[o.ans,w[0],w[1]],a:0}}
+const two=(c,a)=>shuf(c.filter(x=>x!=a)).slice(0,2);
+/* ง่าย */
+function e1(){const m=ri(0,4);let t,a,w,e;
+ if(m==0){const k=ri(1,3);t=`${sub('Q',k)} มีค่าเท่ากับเปอร์เซ็นไทล์ตัวใด`;a=sub('P',25*k);w=[sub('P',10*k),sub('P',20*k)];e=`ควอร์ไทล์แบ่งข้อมูล 4 ส่วน ${sub('Q',k)} = ${a}`}
+ else if(m==1){const k=ri(1,9);t=`${sub('D',k)} มีค่าเท่ากับเปอร์เซ็นไทล์ตัวใด`;a=sub('P',10*k);w=[sub('P',k),sub('P',10*k+10)];e=`เดไซล์แบ่งข้อมูล 10 ส่วน ${sub('D',k)} = ${a}`}
+ else if(m==2){const k=ri(1,9);t=`${sub('P',10*k)} มีค่าเท่ากับเดไซล์ตัวใด`;a=sub('D',k);w=two([1,2,3,4,5,6,7,8,9],k).map(v=>sub('D',v));e=`${sub('P',10*k)} = ${a}`}
+ else if(m==3){const ty=pk(TT),r=rr(ty),p=ty=='Q'?25*r:ty=='D'?10*r:r;t=`ข้อมูลที่น้อยกว่า ${sub(ty,r)} มีอยู่ประมาณกี่เปอร์เซ็นต์ของข้อมูลทั้งหมด`;a=p+'%';w=[100-p,p>50?p-25:p+25,25,75,10].map(v=>v+'%');e=`${sub(ty,r)} = ${sub('P',p)} จึงมีข้อมูลน้อยกว่าประมาณ ${p}%`}
+ else{const ty=pk(TT),r=rr(ty),d=DEN[ty];t=`เมื่อมีข้อมูล N ตัว เรียงจากน้อยไปมาก ตำแหน่งของ ${sub(ty,r)} คือข้อใด`;a=`${r}(N+1)/${d}`;w=[`${r}N/${d}`,`${r}(N+1)/${d==4?10:4}`,`(N+1)/${d}`];e=`สูตร ${sub(ty,'r')} ตำแหน่ง = r(N+1)/${d} (Q หาร 4, D หาร 10, P หาร 100)`}
+ return mkS({t,ans:a,w,e})}
+function e2(){const t=pk(['Q','Q','D','D','P']),r=rI(t),d=DEN[t],c=[];for(let n=7;n<=59;n++)if(r*(n+1)%d==0)c.push(n);if(!c.length)return null;
+ const n=pk(c),p=r*(n+1)/d;return mkN({t:`มีข้อมูล ${n} ตัว เรียงจากน้อยไปมาก ${sub(t,r)} อยู่ที่ตำแหน่งที่เท่าใด`,ans:p,w:[p+1,p-1,Math.round(r*n/d)],e:`ตำแหน่ง ${sub(t,r)} = ${r}(${n}+1)/${d} = ${p}`})}
+function e3(){const t=pk(['Q','Q','D','P']),r=rI(t),d=DEN[t],c=[];for(let n=7;n<=15;n++)if(r*(n+1)%d==0)c.push(n);if(!c.length)return null;
+ const n=pk(c),p=r*(n+1)/d,x=asc(dist(n,5,99));return mkN({t:`ข้อมูลชุดหนึ่งเรียงลำดับแล้ว จงหา ${sub(t,r)}`,d:x,ans:x[p-1],w:[x[p-2],x[p],x[p+1]],e:ev(t,r,n,x)})}
+/* กลาง */
+function m1(){const t=pk(TT),r=t=='P'?ri(5,95):rr(t),n=ri(6,40),d=DEN[t],p=r*(n+1)/d;if(Number.isInteger(p)||p<1||p>=n)return null;const i=Math.floor(p);
+ if(R()<.5)return mkN({t:`มีข้อมูล ${n} ตัว เรียงจากน้อยไปมาก ${sub(t,r)} อยู่ที่ตำแหน่งที่เท่าใด`,ans:p,w:[r*n/d,p+1,p-1],step:.5,e:`ตำแหน่ง ${sub(t,r)} = ${r}(${n}+1)/${d} = ${num(p)}`});
+ const f=j=>`ตัวที่ ${j} กับตัวที่ ${j+1}`,w=[i-1,i+1,i+2,i-2].filter(j=>j>=1&&j<n).map(f);
+ return mkS({t:`มีข้อมูล ${n} ตัว ตำแหน่งของ ${sub(t,r)} อยู่ระหว่างข้อมูลตัวที่เท่าใดกับเท่าใด`,ans:f(i),w,e:`ตำแหน่ง ${sub(t,r)} = ${r}(${n}+1)/${d} = ${num(p)} อยู่ระหว่างตัวที่ ${i} และ ${i+1}`})}
+function m2(){const t=pk(['Q','Q','D']),r=rr(t),n=ri(5,11),d=DEN[t],p=r*(n+1)/d;if(Number.isInteger(p)||p<1||p>=n)return null;
+ const x=asc(dist(n,3,80)),i=Math.floor(p);return mkN({t:`ข้อมูลชุดหนึ่งเรียงลำดับแล้ว จงหา ${sub(t,r)}`,d:x,ans:valAt(x,p),w:[x[i-1],x[i],valAt(x,r*n/d),(x[i-1]+x[i])/2],step:.5,e:ev(t,r,n,x)})}
+function m3(){const t=pk(TT),r=rr(t),n=ri(8,15),d=DEN[t],p=r*(n+1)/d;if(Number.isInteger(p)||p<1||p>=n)return null;
+ const x=asc(dist(n,3,95)),i=Math.floor(p);return mkN({t:`ข้อมูลชุดหนึ่งยังไม่ได้เรียงลำดับ จงหา ${sub(t,r)}`,d:shuf(x),ans:valAt(x,p),w:[x[i-1],x[i],valAt(x,r*n/d),(x[i-1]+x[i])/2],step:.5,e:`เรียงลำดับ: ${x.join(', ')} → ${ev(t,r,n,x)}`})}
+/* ยาก */
+function h1(){const t=pk(TT),r=rr(t),s=sub(t,r),k=ri(0,3),v=ri(10,90);
+ if(k==0){const c=ri(2,20);return mkN({t:`ข้อมูลชุดหนึ่งมี ${s} = ${v} ถ้านำ ${c} ไปบวกข้อมูลทุกตัว ${s} ของข้อมูลชุดใหม่เท่ากับเท่าใด`,ans:v+c,w:[v,v*c,v-c],e:`บวกค่าคงที่ทุกตัว ตำแหน่งไม่เปลี่ยน ค่าเพิ่มตาม: ${v}+${c} = ${v+c}`})}
+ if(k==1){const c=ri(2,6);return mkN({t:`ข้อมูลชุดหนึ่งมี ${s} = ${v} ถ้านำ ${c} ไปคูณข้อมูลทุกตัว ${s} ของข้อมูลชุดใหม่เท่ากับเท่าใด`,ans:v*c,w:[v+c,v,v*c+c],e:`คูณค่าคงที่ทุกตัว ${s} ก็ถูกคูณด้วย: ${v}×${c} = ${v*c}`})}
+ if(k==2){const a=ri(2,5),b=ri(3,15);return mkN({t:`ข้อมูลชุดหนึ่งมี ${s} = ${v} ถ้าเปลี่ยนข้อมูลทุกตัว x เป็น ${a}x + ${b} ${s} ของข้อมูลชุดใหม่เท่ากับเท่าใด`,ans:a*v+b,w:[a*(v+b),a*v,v+a*b],e:`${s} ใหม่ = ${a}(${v}) + ${b} = ${a*v+b}`})}
+ const q1=ri(10,50),q3=q1+ri(5,40);return mkN({t:`ข้อมูลชุดหนึ่งมี ${sub('Q',1)} = ${q1} และ ${sub('Q',3)} = ${q3} จงหาพิสัยระหว่างควอร์ไทล์ (${sub('Q',3)} − ${sub('Q',1)})`,ans:q3-q1,w:[q3+q1,(q3+q1)/2,q3],e:`${q3} − ${q1} = ${q3-q1}`})}
+function grp(Ns,ws,k0,k1){const N=pk(Ns),w=pk(ws),k=ri(k0,k1),s=ri(1,8)*10,b=N/k;let f,ok=false;
+ for(let a=0;a<80&&!ok;a++){f=[];let sum=0;for(let i=0;i<k-1;i++){const v=Math.round(b*(.5+R()));f.push(v);sum+=v}const l=N-sum;if(l>=b*.4&&l<=b*1.6){f.push(l);ok=true}}
+ if(!ok)return null;let c=0;return{N,w,g:f.map((fi,i)=>[s+i*w,s+(i+1)*w,fi]),cum:f.map(v=>c+=v)}}
+function gl(G,t,r){const thr=r*G.N/DEN[t],j=G.cum.findIndex(c=>c>=thr);return{thr,j,F:j?G.cum[j-1]:0,f:G.g[j][2],L:G.g[j][0]}}
+function h2(){const G=grp([40,50,60,80,100],[5,10],5,6);if(!G)return null;const t=pk(TT),r=rr(t),o=gl(G,t,r),lab=j=>`${G.g[j][0]} – ${G.g[j][1]}`,w=[o.j-1,o.j+1,o.j+2,o.j-2].filter(j=>j>=0&&j<G.g.length).map(lab);
+ return mkS({t:`จากตารางแจกแจงความถี่ (N = ${G.N}) ${sub(t,r)} อยู่ในอันตรภาคชั้นใด`,g:G.g,ans:lab(o.j),w,e:`ตำแหน่ง ${sub(t,r)} = ${r}(${G.N})/${DEN[t]} = ${num(o.thr)} ความถี่สะสมถึงชั้นนี้ = ${G.cum[o.j]} (ชั้นก่อนหน้า ${o.F}) จึงอยู่ชั้น ${lab(o.j)}`})}
+function h3(Ns,ws,k0,k1){const G=grp(Ns||[40,50,60,80,100],ws||[5,10],k0||5,k1||6);if(!G)return null;const t=pk(TT),r=rr(t),d=DEN[t],o=gl(G,t,r),v=o.L+(o.thr-o.F)/o.f*G.w;
+ const w1=o.L+(r*(G.N+1)/d-o.F)/o.f*G.w,w2=o.L+(o.thr-o.F)/o.f,nx=G.g[o.j+1],w3=nx?nx[0]+(o.thr-G.cum[o.j])/nx[2]*G.w:v+G.w/2;
+ return mkN({t:`จากตารางแจกแจงความถี่ (N = ${G.N}) จงหา ${sub(t,r)}`,g:G.g,ans:v,w:[w1,w2,w3],step:G.w/5,e:`ตำแหน่ง = ${r}(${G.N})/${d} = ${num(o.thr)} อยู่ชั้นที่ L = ${o.L}, F = ${o.F}, f = ${o.f}, I = ${G.w} ค่า = L + ((ตำแหน่ง − F)/f) × I = ${o.L} + ((${num(o.thr)} − ${o.F})/${o.f}) × ${G.w} = ${num(v)}`})}
+/* โบนัส */
+function b2(){const n=ri(9,15),x=asc(dist(n,5,95)),k=ri(0,2);let t,v,w,e;
+ if(k==0){const a=valAt(x,posOf('Q',3,n)),b=valAt(x,posOf('Q',1,n));t=`ข้อมูลชุดหนึ่งยังไม่เรียงลำดับ จงหาพิสัยระหว่างควอร์ไทล์ (${sub('Q',3)} − ${sub('Q',1)})`;v=a-b;w=[a+b,a,a-valAt(x,posOf('Q',2,n))];e=`${sub('Q',3)} = ${num(a)}, ${sub('Q',1)} = ${num(b)} ผลต่าง = ${num(v)}`}
+ else if(k==1){const a=valAt(x,posOf('D',9,n)),b=valAt(x,posOf('D',1,n));t=`ข้อมูลชุดหนึ่งยังไม่เรียงลำดับ จงหา ${sub('D',9)} − ${sub('D',1)}`;v=a-b;w=[a+b,a,x[n-1]-x[0]];e=`${sub('D',9)} = ${num(a)}, ${sub('D',1)} = ${num(b)} ผลต่าง = ${num(v)}`}
+ else{const r=ri(1,3),a=ri(2,4),b=ri(3,12),q=valAt(x,posOf('Q',r,n));t=`ข้อมูลชุดหนึ่งยังไม่เรียงลำดับ ถ้าเปลี่ยนข้อมูลทุกตัว x เป็น ${a}x + ${b} จงหา ${sub('Q',r)} ของข้อมูลชุดใหม่`;v=a*q+b;w=[a*q,q+b,a*(q+b)];e=`${sub('Q',r)} เดิม = ${num(q)} ค่าใหม่ = ${a}(${num(q)}) + ${b} = ${num(v)}`}
+ return mkN({t,d:shuf(x),ans:v,w,step:2,e:`เรียงลำดับ: ${x.join(', ')} → ${e}`})}
+function fill(arr,quota,gen){const seen=new Set();let g=0;while(arr.length<quota&&g++<8000){const q=gen();if(!q)continue;const key=q.t+JSON.stringify(q.d||q.g||'');if(seen.has(key))continue;seen.add(key);arr.push(q)}}
+const POOL={easy:{},mid:{},hard:{},bonus:[]};
+[['easy',[[e1,36],[e2,54],[e3,60]]],['mid',[[m1,40],[m2,55],[m3,55]]],['hard',[[h1,40],[h2,50],[h3,60]]]].forEach(([m,l])=>l.forEach(([g,q],i)=>{POOL[m][i+1]=[];fill(POOL[m][i+1],q,g)}));
+fill(POOL.bonus,50,()=>{const q=R()<.5?h3([120,150,200],[5,10,20],6,7):b2();if(q)q.bonus=true;return q});
+const cnt=m=>[1,2,3].reduce((s,i)=>s+POOL[m][i].length,0);
+/* ---------- เกม ---------- */
+const MODES={easy:{n:'ง่าย',rec:[1,1,1,1,2,2,2,3,3,3],d:'ความหมายและสูตร ตำแหน่งที่หารลงตัว และหาค่าจากข้อมูลที่เรียงแล้ว'},
+ mid:{n:'กลาง',rec:[1,1,1,2,2,2,3,3,3,3],d:'ตำแหน่งเป็นทศนิยมต้องแทรกค่า และมีข้อมูลที่ยังไม่เรียงลำดับ'},
+ hard:{n:'ยาก',rec:[1,1,1,2,2,2,3,3,3,3],d:'สมบัติเมื่อแปลงข้อมูล และข้อมูลแจกแจงความถี่ (ใช้ L + ((ตำแหน่ง − F)/f) × I)'}};
+const $=id=>document.getElementById(id),L=['A','B','C'];
+let mode='easy',name='',pos=0,score=0,qi=0,t0=0,tick=null,locked=false,Qs=[];
+const st={get(k){try{return localStorage.getItem(k)||''}catch(e){return''}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$(id).scrollTop=0}
+const fmt=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+function setMode(m){mode=m;document.querySelectorAll('.mode').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('mdesc').textContent=`ระดับ${MODES[m].n}: ${MODES[m].d} (คลัง ${cnt(m)} ข้อ)`}
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$('pc').textContent=`คลังโจทย์รวม ${cnt('easy')+cnt('mid')+cnt('hard')+POOL.bonus.length} ข้อ: ง่าย ${cnt('easy')}, กลาง ${cnt('mid')}, ยาก ${cnt('hard')}, โบนัส ${POOL.bonus.length} ข้อ สุ่มใหม่ทุกรอบ`;
+function build(){const used=new Set();Qs=[];
+ for(let i=0;i<10;i++){const arr=(i==4||i==9)?POOL.bonus:POOL[mode][MODES[mode].rec[i]];let q,g=0;do{q=arr[Math.floor(Math.random()*arr.length)]}while(used.has(q)&&g++<50);used.add(q);Qs.push(q)}}
+function buildCells(){$('cells').innerHTML=Array.from({length:11},(_,i)=>`<div class="cell ${i==0?'start':i==10?'goal':''}" data-i="${i}">${i==0?'เริ่ม':i==10?'🏁':i}</div>`).join('')}
+function place(dir){const p=$('pawn'),r=$('rn');p.style.transform=`translateX(${pos*100}%)`;r.style.setProperty('--f',dir<0?1:-1);
+ if(dir){r.classList.remove('run');void r.offsetWidth;r.classList.add('run')}
+ document.querySelectorAll('.cell').forEach(c=>c.classList.toggle('past',+c.dataset.i>0&&+c.dataset.i<=pos&&+c.dataset.i<10))}
+function fs(){const d=document,e=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+ else{const f=e.requestFullscreen||e.webkitRequestFullscreen;if(f)try{const p=f.call(e);if(p&&p.catch)p.catch(()=>{})}catch(x){}}}
+if(!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))$('fs').style.display='none';
+$('fs').onclick=fs;
+function start(){name=$('nm').value.trim()||'ผู้เล่นนิรนาม';st.set('temple-name',name);
+ if(matchMedia('(pointer:coarse)').matches&&!document.fullscreenElement)fs();
+ build();pos=0;score=0;qi=0;buildCells();place();
+ $('pname').textContent=name;$('pscore').textContent='0';$('timer').textContent='00:00';show('play');
+ t0=performance.now();clearInterval(tick);tick=setInterval(()=>{$('timer').textContent=fmt(performance.now()-t0)},250);ask()}
+function ask(){locked=false;const q=Qs[qi];
+ $('qno').className='no'+(q.bonus?' bn':'');$('qno').textContent=q.bonus?`⭐ ข้อโบนัส ข้อ ${qi+1}/10 (20 คะแนน)`:`ข้อ ${qi+1}/10`;
+ $('qtx').innerHTML=q.t;
+ let h='';if(q.d)h=q.d.map(x=>`<span>${x}</span>`).join('');
+ if(q.g)h=`<table class="gt"><tr><th>อันตรภาคชั้น</th><th>ความถี่ (f)</th></tr>${q.g.map(r=>`<tr><td>${r[0]} – ${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table><div class="note">ชั้น a – b หมายถึง a ≤ x &lt; b ใช้ a เป็นขอบล่าง (L)</div>`;
+ $('qdata').innerHTML=h;
+ const idx=[0,1,2].sort(()=>Math.random()-.5);
+ $('opts').innerHTML=idx.map((k,n)=>`<button class="opt" data-k="${k}"><i>${L[n]}</i><span>${q.o[k]}</span></button>`).join('');
+ $('opts').querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(b));
+ $('fb').className='fb';$('next').style.display='none';$('play').querySelector('.card').scrollTop=0}
+function pick(b){if(locked)return;locked=true;const q=Qs[qi],ok=+b.dataset.k===q.a;
+ $('opts').querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.k===q.a)x.classList.add('ok');else if(x===b)x.classList.add('no');else x.classList.add('dim')});
+ if(ok){score+=q.bonus?20:10;pos=Math.min(10,pos+1)}else pos=Math.max(0,pos-1);
+ $('pscore').textContent=score;place(ok?1:-1);
+ $('fb').className='fb '+(ok?'ok':'no');$('fb').innerHTML=`<b>${ok?'ถูกต้อง! เดินหน้า 1 ช่อง':'ยังไม่ใช่ ถอยหลัง 1 ช่อง'}</b><br>${q.e}`;
+ const last=qi===9||pos===10;$('next').textContent=last?'ดูผลลัพธ์':'ข้อต่อไป';$('next').style.display='block';
+ $('next').onclick=()=>{if(last)finish();else{qi++;ask()}};
+ setTimeout(()=>$('next').scrollIntoView({block:'nearest',behavior:'smooth'}),60)}
+function finish(){clearInterval(tick);const el=performance.now()-t0,key='temple-lb-'+mode;
+ let lb=[];try{lb=JSON.parse(st.get(key)||'[]')}catch(e){}
+ const rec={n:name,s:score,t:Math.round(el),id:Date.now()};lb.push(rec);lb.sort((a,b)=>b.s-a.s||a.t-b.t);const top=lb.slice(0,10);st.set(key,JSON.stringify(top));
+ $('rem').textContent=pos===10?'🏆':score>=60?'🗝️':'🧩';$('rtitle').textContent=pos===10?'ถึงเส้นชัยแล้ว!':'จบการผจญภัย';
+ $('rmode').textContent=MODES[mode].n;$('rtime').textContent=fmt(el);$('rscore').textContent=score;
+ $('lbh').textContent=`ตารางอันดับ โหมด${MODES[mode].n}`;
+ const tb=$('lb');tb.innerHTML='';
+ const add=(i,r,extra)=>{const tr=document.createElement('tr');if(r.id===rec.id)tr.className='me';[i,r.n+(extra||''),r.s,fmt(r.t)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});tb.appendChild(tr)};
+ top.forEach((r,i)=>add(i+1,r));if(!top.some(r=>r.id===rec.id))add('-',rec,' (นอก 10 อันดับ)');
+ show('result')}
+$('start').onclick=start;$('nm').addEventListener('keydown',e=>{if(e.key==='Enter')start()});
+$('again').onclick=start;$('home').onclick=()=>{$('nm').value=name;show('menu')};
+$('nm').value=st.get('temple-name');setMode('easy');
+</script>
+</body>
+</html>
